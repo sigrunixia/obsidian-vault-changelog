@@ -1,5 +1,5 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
-import Changelog from './Changelog';
+import Changelog from '../main';
 
 export class ChangelogSettingsTab extends PluginSettingTab {
     plugin: Changelog;
