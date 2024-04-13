@@ -1,26 +1,22 @@
 {
   "name": "obsidian-vault-changelog",
-  "version": "0.1.0",
-  "description": "Obsidian plugin to maintain a notes changelog in a vault",
+  "version": "0.2.0",
+  "description": "Maintain a notes changelog in a vault",
   "main": "main.js",
   "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js"
+    "lint": "eslint 'src/**/*.{js,ts}'",
+    "dev": "esbuild main.ts --bundle --sourcemap --watch",
+    "build": "esbuild main.ts --bundle --minify --outfile=dist/main.js"
   },
   "author": "Badr Bouslikhin",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^15.1.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^6.0.0",
-    "@types/moment": "^2.13.0",
-    "@types/node": "^14.14.2",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0",
+    "esbuild": "^0.20.2",
+    "eslint": "^8.57.0",
     "obsidian": "latest",
-    "rollup": "^2.32.1",
     "tslib": "^2.0.3",
     "typescript": "^4.0.3"
-  },
-  "dependencies": {
-    "dayjs": "^1.10.4"
   }
 }
