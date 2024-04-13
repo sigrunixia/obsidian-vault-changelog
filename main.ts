@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS: ChangelogSettings = {
   numberOfFilesToShow: 10,
   changelogFilePath: "",
   watchVaultChange: false,
+  excludePaths: "",
 };
 
 declare global {
@@ -40,9 +41,9 @@ export default class Changelog extends Plugin {
     });
 
     this.watchVaultChange = debounce(
-      this.watchVaultChange.bind(this),
-      200,
-      false
+        this.watchVaultChange.bind(this),
+        200,
+        false
     );
     this.registerWatchVaultEvents();
   }
@@ -73,22 +74,54 @@ export default class Changelog extends Plugin {
   }
 
   buildChangelog(): string {
+    const pathsToExclude = this.settings.excludePaths.split(',');
+    const cache = this.app.metadataCache;
     const files = this.app.vault.getMarkdownFiles();
     const recentlyEditedFiles = files
-      // Remove changelog file from recentlyEditedFiles list
-      .filter(
-        (recentlyEditedFile) =>
-          recentlyEditedFile.path !== this.settings.changelogFilePath
-      )
-      .sort((a, b) => (a.stat.mtime < b.stat.mtime ? 1 : -1))
-      .slice(0, this.settings.numberOfFilesToShow);
+        // Remove changelog file from recentlyEditedFiles list
+        .filter(
+            (recentlyEditedFile) =>
+                recentlyEditedFile.path !== this.settings.changelogFilePath
+        )
+        // Remove files from paths to be excluded from recentlyEditedFiles list
+        .filter(
+            function (recentlyEditedFile) {
+              let i;
+              let keep = true;
+              for (i = 0; i < pathsToExclude.length; i++) {
+                if (recentlyEditedFile.path.startsWith(pathsToExclude[i].trim())) {
+                  keep = false;
+                  break;
+                }
+              }
+              return keep;
+            }
+        )
+        // exclude if specifically told not to
+        .filter(
+            function (recentlyEditedFile) {
+              const frontMatter = cache.getFileCache(recentlyEditedFile).frontmatter;
+              if (frontMatter && frontMatter.publish === false) {
+                return false;
+              }
+              return true;
+            }
+        )
+        .sort((a, b) => (a.stat.mtime < b.stat.mtime ? 1 : -1))
+        .slice(0, this.settings.numberOfFilesToShow);
     let changelogContent = ``;
+    let header = ``;
     for (let recentlyEditedFile of recentlyEditedFiles) {
       // TODO: make date format configurable (and validate it)
       const humanTime = window
-        .moment(recentlyEditedFile.stat.mtime)
-        .format("YYYY-MM-DD [at] HH[h]mm");
-      changelogContent += `- ${humanTime} · [[${recentlyEditedFile.basename}]]\n`;
+          .moment(recentlyEditedFile.stat.mtime)
+          // date is already shown in the titles
+          .format("YYYY-MM-DD HH[h]mm");
+      if (header != humanTime.substring(0,10)) {
+        header = humanTime.substring(0,10)
+        changelogContent += `## ${header}\n`
+      }
+      changelogContent += `- ${humanTime.substring(10,16)} · [[${recentlyEditedFile.basename}]]\n`;
     }
     return changelogContent;
   }
@@ -119,6 +152,7 @@ interface ChangelogSettings {
   changelogFilePath: string;
   numberOfFilesToShow: number;
   watchVaultChange: boolean;
+  excludePaths: string;
 }
 
 class ChangelogSettingsTab extends PluginSettingTab {
@@ -137,45 +171,58 @@ class ChangelogSettingsTab extends PluginSettingTab {
     const settings = this.plugin.settings;
 
     new Setting(containerEl)
-      .setName("Changelog note location")
-      .setDesc("Changelog file absolute path (including the extension)")
-      .addText((text) => {
-        text
-          .setPlaceholder("Example: Folder/Changelog.md")
-          .setValue(settings.changelogFilePath)
-          .onChange((value) => {
-            settings.changelogFilePath = value;
-            this.plugin.saveSettings();
-          });
-      });
+        .setName("Changelog note location")
+        .setDesc("Changelog file absolute path (including the extension)")
+        .addText((text) => {
+          text
+              .setPlaceholder("Example: Folder/Changelog.md")
+              .setValue(settings.changelogFilePath)
+              .onChange((value) => {
+                settings.changelogFilePath = value;
+                this.plugin.saveSettings();
+              });
+        });
 
     new Setting(containerEl)
-      .setName("Number of recent files in changelog")
-      .setDesc("Number of most recently edited files to show in the changelog")
-      .addText((text) =>
-        text
-          .setValue(String(settings.numberOfFilesToShow))
-          .onChange((value) => {
-            if (!isNaN(Number(value))) {
-              settings.numberOfFilesToShow = Number(value);
-              this.plugin.saveSettings();
-            }
-          })
-      );
+        .setName("Number of recent files in changelog")
+        .setDesc("Number of most recently edited files to show in the changelog")
+        .addText((text) =>
+            text
+                .setValue(String(settings.numberOfFilesToShow))
+                .onChange((value) => {
+                  if (!isNaN(Number(value))) {
+                    settings.numberOfFilesToShow = Number(value);
+                    this.plugin.saveSettings();
+                  }
+                })
+        );
 
     new Setting(containerEl)
-      .setName("Automatically update changelog")
-      .setDesc(
-        "Automatically update changelog on any vault change (modification, renaming or deletion of a note)"
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.watchVaultChange)
-          .onChange((value) => {
-            this.plugin.settings.watchVaultChange = value;
-            this.plugin.saveSettings();
-            this.plugin.registerWatchVaultEvents();
-          })
-      );
+        .setName("Automatically update changelog")
+        .setDesc(
+            "Automatically update changelog on any vault change (modification, renaming or deletion of a note)"
+        )
+        .addToggle((toggle) =>
+            toggle
+                .setValue(this.plugin.settings.watchVaultChange)
+                .onChange((value) => {
+                  this.plugin.settings.watchVaultChange = value;
+                  this.plugin.saveSettings();
+                  this.plugin.registerWatchVaultEvents();
+                })
+        );
+
+    new Setting(containerEl)
+        .setName("Excluded paths")
+        .setDesc("Paths or folders to ignore from changelog, separated by a comma")
+        .addText((text) => {
+          text
+              .setPlaceholder("Example: Meetings,People")
+              .setValue(settings.excludePaths)
+              .onChange((value) => {
+                settings.excludePaths = value;
+                this.plugin.saveSettings();
+              });
+        });
   }
 }
