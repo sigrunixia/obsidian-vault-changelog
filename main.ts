@@ -76,11 +76,11 @@ export default class Changelog extends Plugin {
     }
 
     async writeChangelog() {
-        const changelog = this.buildChangelog();
+        const changelog = await this.buildChangelog();
         await this.writeInFile(this.settings.changelogFilePath, changelog);
     }
 
-    buildChangelog(): string {
+    async buildChangelog(): Promise<string> {
         const files = this.app.vault.getMarkdownFiles();
         const recentlyEditedFiles = files
             // Remove changelog file from recentlyEditedFiles list
@@ -105,9 +105,25 @@ export default class Changelog extends Plugin {
         let changelogContent = ``;
         for (let date in filesGroupedByDate) {
             changelogContent += `## [[${date}]]\n`;
-            for (let file of filesGroupedByDate[date]) {
+
+            // Read all files in parallel
+            const fileContents = await Promise.all(
+                filesGroupedByDate[date].map(file => this.app.vault.read(file))
+            );
+
+            for (let i = 0; i < filesGroupedByDate[date].length; i++) {
+                const file = filesGroupedByDate[date][i];
                 const time = window.moment(file.stat.mtime).format("HH:mm");
-                changelogContent += `- ${time} - [[${file.basename}]]\n`;
+                let fileContent = fileContents[i];
+                let fileName = file.basename;
+
+                if (fileContent.includes('publish: false')) {
+                    fileName = file.basename;
+                } else {
+                    fileName = `[[${file.basename}]]`;
+                }
+
+                changelogContent += `- ${time} - ${fileName}\n`;
             }
         }
         return changelogContent;
