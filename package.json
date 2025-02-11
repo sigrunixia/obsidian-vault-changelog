@@ -1,27 +1,9 @@
 {
-	"name": "obsidian-vault-changelog",
-	"description": "An Obsidian plugin to maintain a changelog of recently edited notes",
-	"author": "Badr Bouslikhin",
-	"license": "MIT",
-	"version": "1.0.0",
-	"main": "main.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/philoserf/obsidian-vault-changelog.git"
-	},
-	"keywords": [
-		"obsidian",
-		"plugin",
-		"changelog"
-	],
-	"engines": {
-		"node": ">=22.0.0"
-	},
 	"scripts": {
 		"build": "tsc -noEmit && node esbuild.config.mjs production",
 		"dev": "node esbuild.config.mjs",
 		"version": "node version-bump.mjs",
-		"lint": "prettier --write --list --ignore-unknown . && markdownlint --ignore node_modules --disable MD013 MD041 --fix ."
+		"format": "prettier --write --list --ignore-unknown . && markdownlint --ignore node_modules --disable MD013 MD041 --fix ."
 	},
 	"devDependencies": {
 		"esbuild": "^0.25.0",
