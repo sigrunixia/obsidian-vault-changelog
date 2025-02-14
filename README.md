@@ -37,9 +37,19 @@ change log manually.
 
 ## Changelog
 
+### v1.0.1
+
+- Fix plugin id
+
 ### v1.0.0
 
-- placeholder
+- Moved to new maintainer
+- Fix file create bug
+- Improve file create error message
+- Add date customization
+- Rewrite code to Obsidian community guidance
+- Update README with new installation instructions and plugin usage
+- Add LICENSE file
 
 ### v0.1.0
 
