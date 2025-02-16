@@ -37,10 +37,6 @@ change log manually.
 
 ## Changelog
 
-### v1.0.1
-
-- Fix plugin id
-
 ### v1.0.0
 
 - Moved to new maintainer
