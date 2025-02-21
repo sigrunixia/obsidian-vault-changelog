@@ -16,7 +16,7 @@ Use a dedicated change log note and embed it elsewhere if you need historical tr
 ## Project History
 
 This project was originally created by **Badr Bouslikhin (2020-2024)**.  
-In January 2024, Badr transferred the repository to **Mark Ayers**.  
+In January 2025, Badr transferred the repository to **Mark Ayers**.  
 On behalf of the Obsidian community, we extend our gratitude to Badr for this valuable contribution.
 
 ## Installation
