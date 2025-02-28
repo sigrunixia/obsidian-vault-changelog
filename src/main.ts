@@ -6,8 +6,38 @@ import {
 	DEFAULT_SETTINGS,
 } from "./settings";
 
+// Add styles for the excluded folders list
+const EXCLUDED_FOLDERS_STYLES = `
+.excluded-folders-list {
+	margin-bottom: 1em;
+}
+
+.excluded-folder-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	padding: 4px 8px;
+	margin-bottom: 6px;
+}
+
+.excluded-folder-remove {
+	cursor: pointer;
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	padding: 0 4px;
+	font-size: 14px;
+}
+
+.excluded-folder-remove:hover {
+	color: var(--text-error);
+}`;
+
 export default class ChangelogPlugin extends Plugin {
 	settings: ChangelogSettings = DEFAULT_SETTINGS;
+	private styleEl: HTMLStyleElement;
 
 	async onload() {
 		await this.loadSettings();
@@ -19,8 +49,20 @@ export default class ChangelogPlugin extends Plugin {
 			callback: () => this.updateChangelog(),
 		});
 
+		// Add styles for the excluded folders feature
+		this.styleEl = document.createElement("style");
+		this.styleEl.textContent = EXCLUDED_FOLDERS_STYLES;
+		document.head.appendChild(this.styleEl);
+
 		this.onVaultChange = debounce(this.onVaultChange.bind(this), 200);
 		this.enableAutoUpdate();
+	}
+
+	onunload() {
+		// Remove styles when plugin is disabled
+		if (this.styleEl && this.styleEl.parentNode) {
+			this.styleEl.parentNode.removeChild(this.styleEl);
+		}
 	}
 
 	enableAutoUpdate() {
@@ -65,7 +107,21 @@ export default class ChangelogPlugin extends Plugin {
 	getRecentlyEditedFiles() {
 		return this.app.vault
 			.getMarkdownFiles()
-			.filter((file) => file.path !== this.settings.changelogPath)
+			.filter((file) => {
+				// Exclude the changelog file itself
+				if (file.path === this.settings.changelogPath) {
+					return false;
+				}
+
+				// Exclude files in excluded folders
+				for (const folder of this.settings.excludedFolders) {
+					if (file.path.startsWith(folder)) {
+						return false;
+					}
+				}
+
+				return true;
+			})
 			.sort((a, b) => b.stat.mtime - a.stat.mtime)
 			.slice(0, this.settings.maxRecentFiles);
 	}
