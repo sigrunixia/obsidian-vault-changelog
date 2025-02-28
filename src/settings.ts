@@ -148,7 +148,7 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 			);
 
 		// Excluded folders section header
-		containerEl.createEl("h3", { text: "Excluded Folders" });
+		containerEl.createEl("h3", { text: "Excluded folders" });
 
 		// Create a list of currently excluded folders with delete buttons
 		const excludedFoldersList = containerEl.createDiv(

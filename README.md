@@ -50,6 +50,12 @@ On behalf of the Obsidian community, we extend our gratitude to Badr for this va
 
 ## Changelog
 
+### 1.1.0
+
+- Added folder suggestion for the "Changelog path"
+- Added "Excluded folders"
+- Added input validation for "Datetime format" and "Max recent files"
+
 ### 1.0.0
 
 - Transferred to a new maintainer.
