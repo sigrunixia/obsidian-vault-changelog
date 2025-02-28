@@ -1,6 +1,16 @@
-import { App, PluginSettingTab, Setting, normalizePath } from "obsidian";
-import ChangelogPlugin from "./main";
+import {
+	App,
+	Notice,
+	PluginSettingTab,
+	Setting,
+	moment,
+	normalizePath,
+} from "obsidian";
 
+import ChangelogPlugin from "./main";
+import { PathSuggest } from "./suggest";
+
+// Define the settings interface
 export interface ChangelogSettings {
 	autoUpdate: boolean;
 	changelogPath: string;
@@ -8,6 +18,7 @@ export interface ChangelogSettings {
 	maxRecentFiles: number;
 }
 
+// Define the default settings
 export const DEFAULT_SETTINGS: ChangelogSettings = {
 	autoUpdate: false,
 	changelogPath: "Changelog.md",
@@ -15,6 +26,7 @@ export const DEFAULT_SETTINGS: ChangelogSettings = {
 	maxRecentFiles: 25,
 };
 
+// Define the settings tab
 export class ChangelogSettingsTab extends PluginSettingTab {
 	plugin: ChangelogPlugin;
 
@@ -41,21 +53,23 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 					} else {
 						this.plugin.disableAutoUpdate();
 					}
-				}),
+				})
 			);
 
 		new Setting(containerEl)
 			.setName("Changelog path")
 			.setDesc("Relative path including filename and extension")
-			.addText((text) =>
-				text
-					.setPlaceholder("Folder/Changelog.md")
+			.addText((text) => {
+				text.setPlaceholder("Folder/Changelog.md")
 					.setValue(settings.changelogPath)
 					.onChange(async (path) => {
 						settings.changelogPath = normalizePath(path);
 						await this.plugin.saveSettings();
-					}),
-			);
+					});
+
+				// Add path autocompletion
+				new PathSuggest(this.app, text.inputEl);
+			});
 
 		new Setting(containerEl)
 			.setName("Datetime format")
@@ -65,9 +79,22 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 					.setPlaceholder("YYYY-MM-DD[T]HHmm")
 					.setValue(settings.datetimeFormat)
 					.onChange(async (format) => {
+						// Attempt to format current date with the new format string
+						// Returns "Invalid date" if the format is invalid
+						const isValid =
+							moment().format(format) !== "Invalid date";
+
+						if (!isValid) {
+							// Revert to previous valid format and notify user
+							text.setValue(settings.datetimeFormat);
+							new Notice("Invalid datetime format");
+							return;
+						}
+
+						// Save valid format and persist settings
 						settings.datetimeFormat = format;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
@@ -77,9 +104,15 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 				text
 					.setValue(settings.maxRecentFiles.toString())
 					.onChange(async (value) => {
-						settings.maxRecentFiles = Number(value);
+						// Ensure the value is a positive number
+						const numValue = Number(value);
+						if (isNaN(numValue) || numValue < 1) {
+							text.setValue(settings.maxRecentFiles.toString());
+							return;
+						}
+						settings.maxRecentFiles = numValue;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 	}
 }

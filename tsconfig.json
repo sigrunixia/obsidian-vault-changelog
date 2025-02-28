@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
-		"lib": ["es2018", "dom"],
-		"strict": true
+		"lib": ["es2018", "dom"]
 	},
 	"include": ["src/*.ts"]
 }
