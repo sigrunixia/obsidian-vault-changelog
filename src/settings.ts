@@ -79,9 +79,22 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 					.setPlaceholder("YYYY-MM-DD[T]HHmm")
 					.setValue(settings.datetimeFormat)
 					.onChange(async (format) => {
+						// Attempt to format current date with the new format string
+						// Returns "Invalid date" if the format is invalid
+						const isValid =
+							moment().format(format) !== "Invalid date";
+
+						if (!isValid) {
+							// Revert to previous valid format and notify user
+							text.setValue(settings.datetimeFormat);
+							new Notice("Invalid datetime format");
+							return;
+						}
+
+						// Save valid format and persist settings
 						settings.datetimeFormat = format;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 
 		new Setting(containerEl)
