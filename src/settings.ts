@@ -104,9 +104,15 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 				text
 					.setValue(settings.maxRecentFiles.toString())
 					.onChange(async (value) => {
-						settings.maxRecentFiles = Number(value);
+						// Ensure the value is a positive number
+						const numValue = Number(value);
+						if (isNaN(numValue) || numValue < 1) {
+							text.setValue(settings.maxRecentFiles.toString());
+							return;
+						}
+						settings.maxRecentFiles = numValue;
 						await this.plugin.saveSettings();
-					}),
+					})
 			);
 	}
 }
