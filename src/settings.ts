@@ -1,6 +1,16 @@
-import { App, PluginSettingTab, Setting, normalizePath } from "obsidian";
-import ChangelogPlugin from "./main";
+import {
+	App,
+	Notice,
+	PluginSettingTab,
+	Setting,
+	moment,
+	normalizePath,
+} from "obsidian";
 
+import ChangelogPlugin from "./main";
+import { PathSuggest } from "./suggest";
+
+// Define the settings interface
 export interface ChangelogSettings {
 	autoUpdate: boolean;
 	changelogPath: string;
@@ -8,6 +18,7 @@ export interface ChangelogSettings {
 	maxRecentFiles: number;
 }
 
+// Define the default settings
 export const DEFAULT_SETTINGS: ChangelogSettings = {
 	autoUpdate: false,
 	changelogPath: "Changelog.md",
@@ -15,6 +26,7 @@ export const DEFAULT_SETTINGS: ChangelogSettings = {
 	maxRecentFiles: 25,
 };
 
+// Define the settings tab
 export class ChangelogSettingsTab extends PluginSettingTab {
 	plugin: ChangelogPlugin;
 
@@ -41,21 +53,23 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 					} else {
 						this.plugin.disableAutoUpdate();
 					}
-				}),
+				})
 			);
 
 		new Setting(containerEl)
 			.setName("Changelog path")
 			.setDesc("Relative path including filename and extension")
-			.addText((text) =>
-				text
-					.setPlaceholder("Folder/Changelog.md")
+			.addText((text) => {
+				text.setPlaceholder("Folder/Changelog.md")
 					.setValue(settings.changelogPath)
 					.onChange(async (path) => {
 						settings.changelogPath = normalizePath(path);
 						await this.plugin.saveSettings();
-					}),
-			);
+					});
+
+				// Add path autocompletion
+				new PathSuggest(this.app, text.inputEl);
+			});
 
 		new Setting(containerEl)
 			.setName("Datetime format")
