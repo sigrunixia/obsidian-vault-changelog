@@ -7,6 +7,7 @@ import {
 } from "./settings";
 
 // Add styles for the excluded folders list
+// TODO: Move this to a styles.css file
 const EXCLUDED_FOLDERS_STYLES = `
 .excluded-folders-list {
 	margin-bottom: 1em;

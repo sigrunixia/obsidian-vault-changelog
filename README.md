@@ -43,12 +43,19 @@ On behalf of the Obsidian community, we extend our gratitude to Badr for this va
 
 ## Settings
 
-- **Auto Update**: Enable automatic updates (`false` by default).
-- **Changelog Path**: File location for the changelog (`Changelog.md` by default).
-- **Datetime Format**: Moment.js format string (`YYYY-MM-DD[T]HHmm` by default).
-- **Max Recent Files**: Number of tracked files (`25` by default).
+- **Auto update**: Enable automatic updates (`false` by default).
+- **Changelog path**: File location for the changelog (`Changelog.md` by default).
+- **Datetime format**: Moment.js format string (`YYYY-MM-DD[T]HHmm` by default).
+- **Max recent files**: Number of tracked files (`25` by default).
+- **Excluded folders**: Folders to exclude from the changelog (empty by default).
 
 ## Changelog
+
+### 1.1.0
+
+- Added folder suggestion for the "Changelog path"
+- Added "Excluded folders"
+- Added input validation for "Datetime format" and "Max recent files"
 
 ### 1.0.0
 
