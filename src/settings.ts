@@ -16,6 +16,7 @@ export interface ChangelogSettings {
 	changelogPath: string;
 	datetimeFormat: string;
 	maxRecentFiles: number;
+	excludedFolders: string[];
 }
 
 // Define the default settings
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: ChangelogSettings = {
 	changelogPath: "Changelog.md",
 	datetimeFormat: "YYYY-MM-DD[T]HHmm",
 	maxRecentFiles: 25,
+	excludedFolders: [],
 };
 
 // Define the settings tab
@@ -33,6 +35,36 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 	constructor(app: App, plugin: ChangelogPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	// Helper method to render the list of excluded folders
+	renderExcludedFolders(container: HTMLElement) {
+		container.empty();
+
+		if (this.plugin.settings.excludedFolders.length === 0) {
+			container.createEl("div", { text: "No excluded folders" });
+			return;
+		}
+
+		this.plugin.settings.excludedFolders.forEach((folder) => {
+			const folderDiv = container.createDiv("excluded-folder-item");
+			folderDiv.createSpan({ text: folder });
+
+			const removeButton = folderDiv.createEl("button", {
+				text: "✕",
+				cls: "excluded-folder-remove",
+			});
+
+			removeButton.addEventListener("click", async () => {
+				const index =
+					this.plugin.settings.excludedFolders.indexOf(folder);
+				if (index > -1) {
+					this.plugin.settings.excludedFolders.splice(index, 1);
+					await this.plugin.saveSettings();
+					this.renderExcludedFolders(container);
+				}
+			});
+		});
 	}
 
 	display() {
@@ -53,7 +85,7 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 					} else {
 						this.plugin.disableAutoUpdate();
 					}
-				})
+				}),
 			);
 
 		new Setting(containerEl)
@@ -94,7 +126,7 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 						// Save valid format and persist settings
 						settings.datetimeFormat = format;
 						await this.plugin.saveSettings();
-					})
+					}),
 			);
 
 		new Setting(containerEl)
@@ -112,7 +144,45 @@ export class ChangelogSettingsTab extends PluginSettingTab {
 						}
 						settings.maxRecentFiles = numValue;
 						await this.plugin.saveSettings();
-					})
+					}),
 			);
+
+		// Excluded folders section header
+		containerEl.createEl("h3", { text: "Excluded Folders" });
+
+		// Create a list of currently excluded folders with delete buttons
+		const excludedFoldersList = containerEl.createDiv(
+			"excluded-folders-list",
+		);
+		this.renderExcludedFolders(excludedFoldersList);
+
+		// Add a new excluded folder with path suggestions
+		new Setting(containerEl)
+			.setName("Add excluded folder")
+			.setDesc("Folders to exclude from the changelog")
+			.addText((text) => {
+				text.setPlaceholder("folder/path/");
+
+				// Add path autocompletion
+				new PathSuggest(this.app, text.inputEl);
+			})
+			.addButton((button) => {
+				button.setButtonText("Add").onClick(async () => {
+					const input =
+						button.buttonEl.parentElement?.querySelector("input");
+					if (input) {
+						const folderPath = input.value;
+						if (
+							folderPath &&
+							!settings.excludedFolders.includes(folderPath)
+						) {
+							settings.excludedFolders.push(folderPath);
+							await this.plugin.saveSettings();
+							input.value = "";
+							this.renderExcludedFolders(excludedFoldersList);
+						}
+					}
+				});
+			});
 	}
 }
