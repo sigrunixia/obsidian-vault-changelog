@@ -3,11 +3,7 @@
 This is a simple plugin that maintains a changelog of recently edited files in your vault.
 The changelog update can be triggered both manually and automatically.
 
-<img src="https://raw.githubusercontent.com/MrZeroo00/obsidian-vault-changelog/main/resources/demo.png" width=50% height=50%>
-
-**Everything in the changelog note will be overwritten**. It's best to use a dedicated changelog note and embed it in other notes.
-
-<img src="https://raw.githubusercontent.com/MrZeroo00/obsidian-vault-changelog/main/resources/demo-embedded.png" width=50% height=50%>
+In this fork by Sigrunixia, the formatting is changed, and notes with `publish: true` have their links removed from the changelog, preventing accidental publishing. 
 
 ## How to Install
 
@@ -67,7 +63,7 @@ tweaks, you can do the following:
 
 ## Notes
 
-This is experimental and may have instability. It is possible that there are
+This is experimental and may have instability. Possibly there are
 bugs which may delete data in the current note. Please make backups!
 
 ## Common issues and solutions
