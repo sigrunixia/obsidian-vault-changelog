@@ -1,10 +1,11 @@
 {
-	"id": "obsidian-vault-changelog",
+	"id": "vault-changelog",
 	"name": "Vault Changelog",
-	"version": "0.1.0",
-	"minAppVersion": "0.9.7",
-	"description": "Obsidian plugin to maintain a notes changelog in a vault",
-	"author": "Badr Bouslikhin",
-	"authorUrl": "https://github.com/MrZeroo00",
+	"version": "0.2.0",
+	"minAppVersion": "1.15.0",
+	"description": "Maintain a notes changelog in a vault.",
+	"author": "Rebbecca Bishop (Sigrunixia) and Badr Bouslikhin",
+	"authorUrl": "https://github.com/sigrunixia",
+	"fundingUrl": "ko-fi.com/sigrunixia",
 	"isDesktopOnly": false
 }

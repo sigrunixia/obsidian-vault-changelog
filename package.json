@@ -1,26 +1,28 @@
 {
-  "name": "obsidian-vault-changelog",
-  "version": "0.1.0",
-  "description": "Obsidian plugin to maintain a notes changelog in a vault",
-  "main": "main.js",
-  "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js"
-  },
-  "author": "Badr Bouslikhin",
-  "license": "MIT",
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^15.1.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^6.0.0",
-    "@types/moment": "^2.13.0",
-    "@types/node": "^14.14.2",
-    "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
-    "rollup": "^2.32.1",
-    "tslib": "^2.0.3",
-    "typescript": "^4.0.3"
-  },
-  "dependencies": {
-    "dayjs": "^1.10.4"
-  }
+	"name": "vault-changelog",
+	"version": "0.2.0",
+	"description": "Maintain a notes changelog in a vault.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [],
+	"author": "Sigrunixia (Badr Bouslikhin)",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"@typescript-eslint/eslint-plugin": "5.29.0",
+		"@typescript-eslint/parser": "5.29.0",
+		"builtin-modules": "3.3.0",
+		"esbuild": "latest",
+		"moment": "^2.30.1",
+		"obsidian": "latest",
+		"tslib": "2.4.0",
+		"typescript": "latest"
+	},
+	"dependencies": {
+		"process": "^0.11.10"
+	}
 }
